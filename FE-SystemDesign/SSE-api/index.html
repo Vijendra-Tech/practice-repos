@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server-Sent Events Example</title>
+</head>
+<body>
+  <h1>Server-Sent Events Example</h1>
+  <div id="events"></div>
+
+  <script>
+    const eventSource = new EventSource('http://localhost:3001/events');
+
+    // Listen for incoming messages
+    eventSource.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+
+      // Display the received message
+      const newEvent = document.createElement('p');
+      newEvent.textContent = `New Event: ${data.message}`;
+      document.getElementById('events').appendChild(newEvent);
+
+      // Check if the received message indicates the end
+      if (data.message === 'DONE') {
+        console.log("Received all data, closing connection.");
+        eventSource.close(); // Close the SSE connection
+      }
+    };
+
+    // Optionally handle any errors
+    eventSource.onerror = function(error) {
+      console.error("SSE error:", error);
+      eventSource.close(); // Close the connection on error
+    };
+  </script>
+</body>
+</html>
